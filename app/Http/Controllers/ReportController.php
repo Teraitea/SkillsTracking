@@ -224,9 +224,6 @@ class ReportController extends Controller
           else:
             $input = $request->all();
             $input['student_id'] = $authUserId;
-            $input['rate'] = $request->input('rate');
-            $input['text'] = $request->input('text');
-            $input['date'] = $request->input('date');
             $report = Report::create($input);
             return new ReportR($report);
           endif;
