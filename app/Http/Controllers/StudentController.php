@@ -259,6 +259,20 @@ class StudentController extends Controller
         return response::json($studentDatas);
 
     }
+
+    public function getAllStudentsNotInFormation($formationId)
+    {
+        $users = User::select('users.*')
+            // ->join('students', 'students.user_id', 'users.id')
+            ->where('user_type_id', 3)
+            ->get()->toArray();
+        
+            foreach ($users as $key=>$user):
+                $isIn = Student::where('user_id', $user['id'])->where('formation_id', $formationId)->count();
+                if($isIn) unset($users[$key]);
+            endforeach;
+            return response::json($users);
+    }
     // je suis un formateur, j'ai l'ensemble de mes formations, je veux pouvoir afficher les modules que je dispense pour chaque formation
     /**
      * Get all the skills by modules

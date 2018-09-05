@@ -67,7 +67,6 @@ class User extends Authenticatable
         ->join('formations', 'formations.id', 'students.formation_id')
         ->join('users', 'users.id', 'students.user_id')
         ->where('students.formation_id', $formationId)
-        ->where('students.active', 1)
         ->orderBy('students.id', 'desc')
         ->get()->first();
     } 

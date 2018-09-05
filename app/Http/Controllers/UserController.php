@@ -83,6 +83,7 @@ class UserController extends Controller
 
 
             $success['token'] =  $user->createToken('Laravel')->accessToken;
+            $success['user_id'] =  $user->id;
             $success['lastname'] =  $user->lastname;
             $success['firstname'] =  $user->firstname;
             $success['phone_number'] =  $user->phone_number;

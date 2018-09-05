@@ -94,14 +94,11 @@ class FormationController extends Controller
 
     public function show($formationId)
     {
-        if(auth::user()->user_type_id == 1):
             $formation = Formation::select('id', 'name', 'start_at', 'end_at', 'logo')
                 ->where('id', $formationId)
                 ->get()->first();
             return Response::json($formation);
-        else:
-            return Response::json(["Erreur : "=>"Vous n'avez pas les droits"]);
-        endif;
+   
     }
     /**
      * Création et modification d'une formation 

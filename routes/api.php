@@ -71,13 +71,16 @@ use Illuminate\Http\Request;
     /*
      * Routes pour les utilisateurs connecté en tant que student
      */
+
+    Route::get('getPlanningForAdmin' , 'CalendarController@getPlanningForAdmin');
     Route::get('getAllFormations', 'StudentController@getAllFormations');
 
+    Route::get('getReportsCreator', 'ReportController@getReportsCreator');
 
     Route::get('ReportComments', 'ReportCommentController@all');
     Route::get('ReportComment/{reportCommentId}', 'ReportCommentController@show');
     Route::get('commentsByReport/{reportId}', 'ReportCommentController@commentByReport');
-    Route::post('ReportComment/create', 'ReportCommentController@store');
+    Route::post('reportComment/create', 'ReportCommentController@store');
     Route::delete('ReportComment/{reportCommentId}', 'ReportCommentController@destroy');
     Route::put('ReportComment/', 'ReportCommentController@store');
 
@@ -110,7 +113,7 @@ use Illuminate\Http\Request;
     Route::get('progressionsBySkills', 'ProgressionController@progressionsBySkills');
     Route::get('skillsByModule/{moduleId}', 'ProgressionController@skillsByModule');
 
-
+    Route::get('getAllStudentsNotInFormation/{formationId}', 'StudentController@getAllStudentsNotInFormation');
     //***************Routes concernant le controlleur ModuleController****************************//
     //*******************************************************************************************************//
 

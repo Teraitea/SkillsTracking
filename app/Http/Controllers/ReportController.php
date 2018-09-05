@@ -6,6 +6,7 @@ use App\Report;
 use App\User;
 use App\Formation;
 use App\FormationDetail;
+use App\ReportComment;
 use App\Student;
 use App\Http\Resources\Report as ReportR;
 
@@ -67,7 +68,8 @@ class ReportController extends Controller
                'reports.updated_at',
                'students.formation_id'
               )
-        ->join('students', 'students.user_id', 'reports.student_id')      
+        ->join('students', 'students.user_id', 'reports.student_id')
+        // ->join('report_comments', 'reports.id', 'report_comments.report_id')      
         ->where([
             ['students.formation_id', $formationId],
             ['reports.id', $reportId]
@@ -76,10 +78,11 @@ class ReportController extends Controller
           ->get()->toArray();
         
         foreach($reportByFormationId as $key=>$report):
-          
+          // dd($report);
             $user = User::where('id', $report['student_id'])->select('lastname', 'firstname')->get();
-    
+            $reportComment = ReportComment::join('users', 'users.id', 'report_comments.user_id')->where('report_comments.report_id', $report['report_id'])->select('report_comments.id','report_comments.text','report_comments.user_id','users.lastname', 'users.firstname', 'report_comments.created_at')->get();
             $reportByFormationId[$key]['student'] = $user;
+            $reportByFormationId[$key]['comments'] = $reportComment;
         endforeach;
 
       return Response::json($reportByFormationId);
@@ -96,6 +99,16 @@ class ReportController extends Controller
     /**
     * Get one report by reportId
     */
+
+    public function getReportsCreator()
+    {
+      $report = Report::select('student_id')->get();
+      $student = User::select('users.id as user_id','students.id as student_id', 'students.user_id','users.lastname','users.firstname')
+        ->join('students', 'students.user_id', 'users.id')
+        ->whereIn('users.id', $report)
+        ->get();
+        return response::json($student);
+    }
 
     public function getOneReport($reportId, $formationId)
     {
@@ -118,7 +131,11 @@ class ReportController extends Controller
           
         foreach($reportByFormationId as $key=>$report):
           
-            $user = User::where('id', $report['student_id'])->select('lastname', 'firstname')->get();
+          // dd($report);
+          $user = User::where('id', $report['student_id'])->select('lastname', 'firstname')->get();
+          $reportComment = ReportComment::join('users', 'users.id', 'report_comments.user_id')->where('report_comments.report_id', $report['report_id'])->select('report_comments.id','report_comments.text','report_comments.user_id','users.lastname', 'users.firstname', 'report_comments.created_at')->get();
+          $reportByFormationId[$key]['student'] = $user;
+          $reportByFormationId[$key]['comments'] = $reportComment;
     
             $reportByFormationId[$key]['author'] = $user;
         endforeach;

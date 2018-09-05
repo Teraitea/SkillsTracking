@@ -15,6 +15,16 @@ use Illuminate\Support\Facades\Response;
 
 class CalendarController extends Controller
 {
+
+    public function getPlanningForAdmin()
+    {
+        if(Auth::user()->user_type_id == 1):
+            $calendars = Calendar::select('calendars.file_name','calendars.file_url', 'formations.id as formation_id', 'formations.name')
+                ->join('formations', 'formations.id', 'calendars.formation_id')
+                ->get();
+            return response::json($calendars);
+        endif;
+    }
     /**
      * Récupère tous les planninge, toutes formation confondus (en pdf)
      * @return response JSON
