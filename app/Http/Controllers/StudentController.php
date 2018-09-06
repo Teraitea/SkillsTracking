@@ -201,6 +201,7 @@ class StudentController extends Controller
     {
         $formationData = User::getMyCurrentFormation();
 
+        $student = Student::where([['user_id',Auth::user()->id],['formation_id',$formationData->formation_id],['active',1]])->first();
         $skillsData = Skill::getSkillsByFormationId($formationData->formation_id);
 
         $studentDatas = [];
@@ -227,33 +228,26 @@ class StudentController extends Controller
 
             $progression = Progression::where([
                 ['progressions.skill_id', $skill['skill_id']],
-                ['progressions.student_id', $formationData->student_id]
+                ['progressions.student_id', $student->id]
             ])->first();
 
             
             $studentDatas[$i]['module']['skills'][] = [
                 'id'=>$skill['skill_id'],
                 'name'=>$skill['skill_name'],
-                'progression'=> ($progression)?[
+                'progression'=> [
                     'student_progression_id' => $progression->id,
                     'student_validation' => $progression->student_validation,
                     'student_validation_date' => $progression->student_validation_date,
                     'teacher_validation' => $progression->teacher_validation,
                     'teacher_validation_date' => $progression->teacher_validation_date,
-                ]:
-                [
-                    'student_progression_id' => null,
-                    'student_validation_date' => null,
-                    'teacher_validation' => null,
-                    'teacher_validation_date' => null,
                 ]
             ];
             $studentDatas[$i]['module']['totalSkills']++;
-            if($progression):
+            
                 if($progression->student_validation) $studentDatas[$i]['module']['progression']['student']++;
                 if($progression->teacher_validation) $studentDatas[$i]['module']['progression']['teacher']++;
-            endif;
-
+            
         endforeach;
 
         return response::json($studentDatas);

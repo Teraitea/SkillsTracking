@@ -176,6 +176,45 @@ class ReportController extends Controller
         return Response::json(["Erreur : "=>"Vous n'avez pas les droits"]);
       endif;
     }
+    public function getReportsForTeacher()
+    {
+      if(Auth::user()->user_type_id == 2):
+        //Get all formations Ids of teacher
+        $myFormationIds = FormationDetail::
+        select(DB::raw('DISTINCT(formation_details.formation_id) as id, formations.name as name'))
+        ->join('formations','formations.id','=','formation_details.formation_id')
+        ->where('formation_details.teacher_id',Auth::user()->id)->get();
+        
+        //Run through Formations Ids and get all reports
+        foreach($myFormationIds as $formation):
+          $reports = Report::
+            select('reports.id as report_id',
+                  'reports.student_id as student_id',
+                  'reports.date as report_date',
+                  'reports.rate as report_rate',
+                  'reports.title as report_title',
+                  'reports.is_daily as report_is_daily',
+                  'reports.created_at',
+                  'reports.updated_at',
+                  'students.formation_id as formation_id'
+                  )
+            ->join('students', 'students.user_id', 'reports.student_id')
+            ->where('students.formation_id', $formation->id)      
+            ->get()->toArray();
+            
+            foreach($reports as $key=>$report):
+              $reports[$key]['formation_name'] = $formation->name;
+              
+              $user = User::where('id', $report['student_id'])->select('lastname', 'firstname')->get();
+      
+              $reports[$key]['student'] = $user;
+            endforeach;
+          endforeach;
+        return Response::json($reports);
+      else:
+        return Response::json(["Erreur : "=>"Vous n'avez pas les droits"]);
+      endif;
+    }
 
     public function show($reportId)
     {

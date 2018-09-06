@@ -132,6 +132,7 @@ use Illuminate\Http\Request;
     //*******************************************************************************************************//
 
     //=======================Récupération de tous les reports
+    Route::get('report/reportsAvailableForTeacher', 'ReportController@getReportsForTeacher');
     Route::get('reportsForAdmin', 'ReportController@reportsForAdmin');
     Route::get('reports/{dateFilter}/{userFilter}', 'ReportController@getReports');
     Route::get('report/getStudentsReport', 'ReportController@getStudentsReport');
