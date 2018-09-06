@@ -32,10 +32,7 @@ class ModuleController extends Controller
 
     public function show($moduleId)
     {
-        $moduleId = Module::select('modules.id as module_id', 'modules.name as module_name')
-            ->get()->first();
-
-            return Response::json($moduleId);
+      return Response::json(Module::find($moduleId));
     }
 
     public function destroy($moduleId)
