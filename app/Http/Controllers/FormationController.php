@@ -153,6 +153,28 @@ class FormationController extends Controller
         endif;
     }
 
+    public function editFormation(Request $request, $formationId)
+    {
+        $formation = Formation::where('id', $formationId)->get()->first();
+        if($request->hasfile('logo')):
+            $file = $request->file('logo');
+            $extension = $file->getClientOriginalExtension(); // getting image extension
+            $filename = substr( md5( 1 . '-' . time() ), 0, 15).'.'.$extension;
+            $file->move('uploads/logos/', $filename);
+        endif;
+                        
+        if(!empty($formation)):
+            $formation->name = $request->input('name');
+            $formation->start_at = $request->input('start_at');
+            $formation->end_at = $request->input('end_at');
+            $formation->logo = $filename;
+
+            if($formation->save()):
+                return new FormationR($formation);
+            endif;
+        endif;
+    }
+
 
     /**
      * Suppression d'une formation, par son id
