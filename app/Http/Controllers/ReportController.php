@@ -207,7 +207,7 @@ class ReportController extends Controller
               
               $user = User::where('id', $report['student_id'])->select('lastname', 'firstname')->get();
       
-              $reports[$key]['student'] = $user;
+              $reports[$key]['student'] = $user[0];
             endforeach;
           endforeach;
         return Response::json($reports);
