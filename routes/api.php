@@ -98,7 +98,7 @@ use Illuminate\Http\Request;
     //=======================Supression d'une formation
     Route::delete('formation/{formationId}', 'FormationController@destroy');
     //=======================Modification d'une formation
-    Route::put('formation', 'FormationController@store');
+    Route::post('editFormation/{formationId}', 'FormationController@editFormation');
 
     Route::get('studentsFormation', 'FormationController@getStudentsFormation');
 
