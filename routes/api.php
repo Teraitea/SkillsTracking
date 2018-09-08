@@ -40,7 +40,7 @@ use Illuminate\Http\Request;
     Route::get('fillBusinesses', 'BusinessController@fillBusinesses');
     Route::post('register', 'UserController@register');
 
-    Route::put('user/update', 'UserController@update');
+    Route::put('user/update{userId}', 'UserController@update');
     /**
      * Créer un nouveau étudiant
      */
@@ -147,7 +147,7 @@ use Illuminate\Http\Request;
     Route::delete('report/{reportId}', 'ReportController@destroy');
     //=======================Modification d'une report
     Route::put('report', 'ReportController@store');
-
+    Route::get('reportForAdminByStudentId/{studentId}', 'ReportController@reportForAdminByStudentId');
     /**
      * Get one report for teacher
      */
@@ -193,8 +193,10 @@ use Illuminate\Http\Request;
     Route::post('calendar/create', 'CalendarController@store');
     Route::delete('calendar/{calendarId}', 'CalendarController@destroy');
     Route::put('calendar', 'CalendarController@store');
+    Route::post('editCalendar/{calendarId}', 'CalendarController@editCalendar');
     Route::get('teachers/calendar', 'CalendarController@getCalendarForTeachers');
     Route::get('students/calendar', 'CalendarController@getStudentsCalendar');
+    Route::get('getCalendarOfFormation/{formationId}', 'CalendarController@getCalendarForFormation');
 
     //***************Routes concernant le controlleur ProgressionController****************************//
     //*************************************************************************************************//
@@ -213,6 +215,7 @@ use Illuminate\Http\Request;
     Route::put('progression/updateTeacherValidation', 'ProgressionController@updateTeacherValidation');
     Route::put('progression/updateAllTeacherValidation', 'ProgressionController@updateAllTeacherValidation');
     Route::put('progression/updateAllStudentValidation', 'ProgressionController@updateAllStudentValidation');
+    Route::get('getProgressionForAdminByStudentId/{studentId}', 'ProgressionController@getProgressionForAdminByStudentId');
 
     //***************Routes concernant le controlleur FormationDetailController****************************//
     //*******************************************************************************************************//
@@ -328,6 +331,9 @@ use Illuminate\Http\Request;
      */
     Route::get('getActiveFormation', 'FormationController@getActiveFormation');
 
+    Route::get('teacherProfil/{teacherId}', 'UserController@teacherProfil');
+    Route::get('adminProfil/{adminId}', 'UserController@adminProfil');
+    Route::get('studentProfil/{studentId}', 'UserController@studentProfil');
     /**
      * Dashboard ADMIN
      */

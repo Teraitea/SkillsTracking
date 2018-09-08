@@ -221,6 +221,9 @@ class FormationController extends Controller
                         ->where('students.formation_id',$myFormation->id )
                         ->get();
 
+                    $totalSkills = Progression::select('progressions.id')
+                        ->get();
+
                     $myFormations[$key]['modules'] = $module;
                     $myFormations[$key]['total_students'] = $user->count();
                 endforeach;
@@ -379,6 +382,12 @@ class FormationController extends Controller
             ->get();
 
             foreach($modules as $key=>$module):
+
+                $teacher = User::select('users.id as teacher_id', 'users.lastname', 'users.firstname','users.avatar')
+                    ->join('formation_details', 'formation_details.teacher_id', 'users.id')
+                    ->where('formation_details.module_id', $module->id )
+                    ->get()->first();
+
                 $skills = Skill::where('skills.module_id', '=', $module->id)
                 ->get();
 
@@ -403,6 +412,7 @@ class FormationController extends Controller
                 $modules[$key]['total_skills_validated_by_student'] = $progressionsValidatedStudent->count();
                 $modules[$key]['total_skills_validated_by_teacher'] = $progressionsValidatedteacher->count();
                 $modules[$key]['total_skills'] = $totalProgression->count();
+                $modules[$key]['teacher'] = $teacher;
                 $modules[$key]['skills'] = $skills;
                 
             endforeach;

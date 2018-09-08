@@ -299,7 +299,7 @@ class StudentController extends Controller
 
             $progression = Progression::where([
                 ['progressions.skill_id', $skill['skill_id']],
-                ['progressions.student_id', $student->id]
+                // ['progressions.student_id', $student->id]
             ])->first();
 
             $studentDatas[$i]['module']['skills'][] = [

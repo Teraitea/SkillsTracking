@@ -15,16 +15,6 @@ use Illuminate\Support\Facades\Response;
 
 class CalendarController extends Controller
 {
-
-    public function getPlanningForAdmin()
-    {
-        if(Auth::user()->user_type_id == 1):
-            $calendars = Calendar::select('calendars.file_name','calendars.file_url', 'formations.id as formation_id', 'formations.name')
-                ->join('formations', 'formations.id', 'calendars.formation_id')
-                ->get();
-            return response::json($calendars);
-        endif;
-    }
     /**
      * Récupère tous les planninge, toutes formation confondus (en pdf)
      * @return response JSON
@@ -39,6 +29,37 @@ class CalendarController extends Controller
             return Response::json($calendars);
         else:
             return Response::json(["Erreur : "=>"Vous n'avez pas les droits"]);
+        endif;
+    }
+
+    public function getCalendarForFormation($formationId)
+    {
+        $calendars = Calendar::select('calendars.id as calendar_id', 'calendars.file_name', 'calendars.file_url', 'calendars.formation_id', 'formations.name')
+            ->where('formation_id', $formationId)
+            ->join('formations', 'formations.id', 'calendars.formation_id')
+            ->get();
+        return response::json($calendars[0]);
+    }
+
+    public function editCalendar($calendarId, Request $request)
+    {
+        $calendar = Calendar::where('id', '=', $calendarId)->get()->first();
+        //on traite le fichier PDF
+        if($request->hasfile('file_url')):
+            $file = $request->file('file_url');
+            $extension = $file->getClientOriginalExtension(); // getting image extension
+            $filename = substr( md5( 1 . '-' . time() ), 0, 15).'.'.$extension;
+            $file->move('uploads/calendars/', $filename);
+        endif;
+
+        if(!empty($calendar)):
+            $calendar->formation_id = $request->input('formation_id');
+            $calendar->file_url = $filename;
+            $calendar->file_name = $request->input('file_name');
+
+            if($calendar->save()):
+                return new CalendarR($calendar);
+            endif;
         endif;
     }
 

@@ -25,7 +25,7 @@ class UserController extends Controller
 
     public $successStatus = 200;
 
-    public function update(Request $request)
+    public function update($userid, Request $request)
     {
         if(Auth::user()->user_type_id == 3):
             $input = $request->all();
@@ -37,7 +37,7 @@ class UserController extends Controller
             $file->move('uploads/images/', $filename);
             endif;
 
-            $users = User::find($input['user_id']);
+            $users = User::find($userId);
             $users->lastname = $input['lastname'];
             $users->firstname = $input['firstname'];
             $users->gender = $input['gender'];
@@ -244,7 +244,9 @@ class UserController extends Controller
     public function listUsersStudent()
     {
         if(Auth::user()->user_type_id == 1):
-            $users = User::where('users.user_type_id', '=', 3)
+            $users = User::select('users.*', 'students.id as student_id')
+            ->where('users.user_type_id', '=', 3)
+            ->join('students', 'students.user_id', 'users.id')
             ->paginate(25);
 
             //On récupère les formations en cours que le formation a
@@ -294,14 +296,14 @@ class UserController extends Controller
 
     public function getTotalStudentsByYear()
     {
-        $firstYear = Formation::select(DB::raw('YEAR(start_at) as start_at_year'))->orderBy('start_at','asc')->get()->first();
+        $firstYear = Formation::select(DB::raw('YEAR(`start_at`) as `start_at_year`'))->orderBy('start_at','asc')->get()->first();
         $firstYearInt = $firstYear->start_at_year;
         $now = Carbon::now()->year;
         $datas = [];
         for($i = $firstYearInt; $i <= $now; $i++):
             $students = Student::join('formations', 'formations.id', 'students.formation_id')
-                ->whereRaw('YEAR(start_at) <= '. $i)
-                ->whereRaw('YEAR(end_at) >= '. $i)
+                ->whereRaw('YEAR(`start_at`) <= '. $i)
+                ->whereRaw('YEAR(`end_at`) >= '. $i)
                 ->count('students.id');
             $datas[] = ['year'=>$i, 'total'=>$students];
         endfor;
@@ -427,5 +429,54 @@ class UserController extends Controller
         if($user->delete()):
             return new UserR($user);
         endif;
+    }
+
+    public function teacherProfil($teacherId)
+    {
+        $users = User::select('users.lastname', 'users.firstname', 'users.avatar','users.email','user_types.name', 'users.birthday_date', 'users.gender', 'users.phone_number')
+            ->join('user_types', 'user_types.id', 'users.user_type_id')
+            // ->join('students', 'students.user_id', 'users.id')
+            // ->join('formation_details', 'formation_details.teacher_id', 'users.id')
+            // ->join('formations', 'formations.id', 'formation_details.formation_id')
+            ->where('users.id', $teacherId)
+            ->get();
+
+            //On récupère les formations en cours que le formateur a
+            foreach($users as $key=>$user):
+                $formationIds = Formation::select(DB::raw('DISTINCT(formations.name) as formation_name, formations.logo, formations.start_at, formations.end_at, formations.id'))->join('formation_details', 'formations.id', 'formation_details.formation_id')->where('formation_details.teacher_id', $teacherId)->get();
+                $users[$key]->formations = $formationIds;
+            endforeach;
+
+            return response::json($users);
+
+            //fzfzzffz
+    }
+
+    public function adminProfil($adminId)
+    {
+        $users = User::select('users.lastname', 'users.firstname', 'users.avatar','users.email','user_types.name', 'users.birthday_date', 'users.gender', 'users.phone_number')
+            ->join('user_types', 'user_types.id', 'users.user_type_id')
+            ->where('users.id', $adminId)
+            ->get();
+            return response::json($users[0]);
+    }
+
+    public function studentProfil($studentId)
+    {
+        $users = User::select('users.lastname', 'users.firstname', 'users.avatar','users.email','user_types.name', 'users.birthday_date', 'users.gender', 'users.phone_number')
+            ->join('user_types', 'user_types.id', 'users.user_type_id')
+            ->where('users.id', $studentId)
+            ->get();
+
+            foreach($users as $key=>$user):
+                $formations = Formation::select('formations.name', 'formations.id', 'formations.logo', 'formations.id', 'formations.start_at', 'formations.end_at')
+                    ->join('students', 'students.formation_id', 'formations.id')
+                    ->where('students.user_id', $studentId)
+                    ->get();
+                    //feagaeg
+                $users[$key]->formations = $formations;
+            endforeach;
+            
+            return response::json($users[0]);
     }
 }
