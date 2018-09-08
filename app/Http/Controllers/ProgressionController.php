@@ -81,6 +81,40 @@ class ProgressionController extends Controller
         endif;
     }
 
+    public function getProgressionForAdminByStudentId($studentId)
+    {
+        if(Auth::user()->user_type_id == 1):
+            $students = Student::select('users.lastname', 'users.firstname')
+                ->join('users', 'users.id', 'students.user_id')
+                ->where('students.id', $studentId)->get();
+            foreach($students as $key=>$student):
+                $skillsTotal = Progression::select('progressions.skill_id')->where('progressions.student_id', $studentId)->get();
+                $skillsValidatedByStudent = Progression::select('progressions.skill_id', 'skills.name')
+                    ->join('skills', 'skills.id', 'progressions.skill_id')
+                    ->where('progressions.student_validation', 1)
+                    ->where('progressions.student_id', $studentId)
+                    ->get();
+                $skillsValidatedByTeachers = Progression::select('progressions.skill_id', 'skills.name')
+                    ->join('skills', 'skills.id', 'progressions.skill_id')
+                    ->where('progressions.teacher_validation', 1)
+                    ->where('progressions.student_id', $studentId)
+                    ->get();
+                $skillsValidatedByTeachersAndStudent = Progression::select('progressions.skill_id', 'skills.name')
+                ->join('skills', 'skills.id', 'progressions.skill_id')
+                    ->where('progressions.student_validation', 1)
+                    ->where('progressions.teacher_validation', 1)
+                ->where('progressions.student_id', $studentId)
+                ->get();
+                
+                $students[$key]->countOfSkillsTotal = $skillsTotal->count();
+                $students[$key]->countOfSkillsValidatedByStudent = $skillsValidatedByStudent->count();
+                $students[$key]->countOfSkillsValidatedByTeachers = $skillsValidatedByTeachers->count();
+                $students[$key]->skillsValidatedByTeachersAndStudent = $skillsValidatedByTeachersAndStudent;
+            endforeach;
+            return response::json($students);
+        endif;
+    }
+
     /**
      * Update mandatory
      */
@@ -286,9 +320,13 @@ class ProgressionController extends Controller
 
     public function addProgression($studentId, $formationId)
     {
-        $skills = Progression::select('progressions.skill_id')
-        ->join('students', 'students.id', 'progressions.student_id')
-        ->groupBy('progressions.skill_id')
+        // dd($formationId);
+        $skills = Skill::select('skills.id')
+        ->join('modules', 'modules.id', 'skills.module_id')
+        ->join('formation_details', 'formation_details.module_id', 'modules.id')
+        ->join('formations','formations.id', 'formation_details.formation_id')
+        ->join('students', 'students.formation_id', 'formations.id')
+        ->groupBy('skills.id')
         ->where('students.formation_id', $formationId)
         ->get();
 
@@ -305,6 +343,7 @@ class ProgressionController extends Controller
         $progression = Progression::create($progressionData);
 
         endfor;
+
     }
 
 }

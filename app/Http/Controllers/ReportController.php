@@ -26,6 +26,18 @@ class ReportController extends Controller
           return response::json($reports);
       endif;
     }
+
+    public function reportForAdminByStudentId($studentId)
+    {
+      if(Auth::user()->user_type_id == 1):
+        $reports = Report::select('reports.*', 'users.lastname', 'users.firstname')
+          ->join('students', 'students.id', 'reports.student_id')
+          ->join('users', 'users.id', 'students.user_id')
+          ->where('reports.student_id', $studentId)
+          ->get();
+        return response::json($reports);
+      endif;
+    }
     public function getReports($dateFilter, $userFilter)
     {
       if(Auth::user()->user_type_id == 1):
@@ -50,10 +62,9 @@ class ReportController extends Controller
      * Get a student's report 
      * Return Response
      */
-
+    
      public function getReportsByFormationIdAndStudentId($reportId, $formationId)
      {
-       if((Auth::user()->user_type_id == 2) || (Auth::user()->user_type_id == 3)):
 
       // dd($formationId);
       $reportByFormationId = Report::
@@ -86,9 +97,6 @@ class ReportController extends Controller
         endforeach;
 
       return Response::json($reportByFormationId);
-    else:
-      return Response::json(["Erreur : "=>"Vous n'avez pas les droits"]);
-    endif;
 
      }
     /**
@@ -155,6 +163,7 @@ class ReportController extends Controller
                  'reports.date as report_date',
                  'reports.rate as report_rate',
                  'reports.title as report_title',
+                 'reports.text as report_text',
                  'reports.is_daily as report_is_daily',
                  'reports.created_at',
                  'reports.updated_at',
@@ -193,6 +202,7 @@ class ReportController extends Controller
                   'reports.date as report_date',
                   'reports.rate as report_rate',
                   'reports.title as report_title',
+                  'reports.text as report_text',
                   'reports.is_daily as report_is_daily',
                   'reports.created_at',
                   'reports.updated_at',
@@ -262,9 +272,14 @@ class ReportController extends Controller
           //fin de la modification, ici on crée un nouveau commentaire
           else:
             $input = $request->all();
-            $input['student_id'] = $authUserId;
-            $report = Report::create($input);
-            return new ReportR($report);
+            DB::table('reports')->insert([
+                'student_id' => $request->input('student_id'),
+                'rate' => $request->input('rate'),
+                'date' => $request->input('date'),
+                'text' => $request->input('text'),
+                'title' => $request->input('title'),
+                'is_daily' => $request->input('is_daily'),
+            ]);
           endif;
         else:
           return Response::json(['error'=>"Accès non autorisé"]);

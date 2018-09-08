@@ -42,7 +42,9 @@ class ModuleController extends Controller
         $authUserId = Auth::user()->id;
         
         $module = Module::findOrFail($moduleId);
+        $formationDetail = FormationDetail::select('formation_details.*')->where('formation_details.module_id', $moduleId);
         $module->delete();
+        $formationDetail->delete();
 
         return Response::json(["Succes : "=>"Le module '$module->name' a bien été supprimé"]);
       else:
@@ -76,9 +78,20 @@ class ModuleController extends Controller
 
         //fin de la modification, ici on crée un nouveau commentaire
         else:
+        $module = Module::where([[ 'id', '=', $request->module_id],])->get()->first(); 
         $input = $request->all();
+
+        $dataFormation = $request->all();
+        $dataFormation['formation_id'] = $request->input('formation_id');
+          // dd($dataFormation);
         $module = Module::create($input);
-        return new ModuleR($module);
+        DB::table('formation_details')->insert([
+            'formation_id' => $request->input('formation_id'),
+            'teacher_id' => $request->input('teacher_id'),
+            'module_id' => $module->id
+        ]);
+        
+        return response::json($module);
         endif;
       else:
         return Response::json(["Erreur : "=>"Vous n'avez pas les droits"]);
