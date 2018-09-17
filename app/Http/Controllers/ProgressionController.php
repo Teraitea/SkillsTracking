@@ -48,11 +48,14 @@ class ProgressionController extends Controller
      * Get progressions data by skills
      * @return Response json
      */
-    public function progressionsBySkills()
+    public function progressionsBySkills($moduleId)
     {
         $user = Auth::user();
         if($user->user_type_id == 1):
-            $skills = Skill::select('id as skill_id')->get();
+            $skills = Skill::select('skills.id as skill_id','module_id as module_id', 'modules.name as module_name')
+                ->join('modules', 'modules.id', 'skills.module_id')
+                ->where('module_id', $moduleId)
+                ->get();
 
             foreach ($skills as $key=>$skill):
                 $skillsValidatedByTeachers = Progression::select('progressions.id')

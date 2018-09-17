@@ -40,7 +40,7 @@ use Illuminate\Http\Request;
     Route::get('fillBusinesses', 'BusinessController@fillBusinesses');
     Route::post('register', 'UserController@register');
 
-    Route::put('user/update{userId}', 'UserController@update');
+    Route::post('user/update/{userId}', 'UserController@update');
     /**
      * Créer un nouveau étudiant
      */
@@ -110,7 +110,7 @@ use Illuminate\Http\Request;
 
     Route::get('getStudentDatas/{userId}/ofFormation/{formationId}', 'StudentController@getStudentSkillsByModule');
 
-    Route::get('progressionsBySkills', 'ProgressionController@progressionsBySkills');
+    Route::get('progressionsBySkillsOfModule/{moduleId}', 'ProgressionController@progressionsBySkills');
     Route::get('skillsByModule/{moduleId}', 'ProgressionController@skillsByModule');
 
     Route::get('getAllStudentsNotInFormation/{formationId}', 'StudentController@getAllStudentsNotInFormation');

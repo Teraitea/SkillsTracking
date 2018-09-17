@@ -27,9 +27,21 @@ class UserController extends Controller
 
     public function update($userid, Request $request)
     {
-        if(Auth::user()->user_type_id == 3):
-            $input = $request->all();
-            
+        if(Auth::user()->user_type_id == 1):
+            $validator = Validator::make($request->all(), [
+                'lastname' => 'required',
+                'firstname' => 'required',
+                'email' => 'required|email',
+                'password' => 'required|min:6',
+                'c_password' => 'required|same:password',
+                'user_type_id' => 'required',
+                'avatar' => 'required',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['error'=>$validator->errors()], 401);
+            }
+
             if($request->hasfile('avatar')):
             $file = $request->file('avatar');
             $extension = $file->getClientOriginalExtension(); // getting image extension
@@ -37,21 +49,30 @@ class UserController extends Controller
             $file->move('uploads/images/', $filename);
             endif;
 
-            $users = User::find($userId);
-            $users->lastname = $input['lastname'];
-            $users->firstname = $input['firstname'];
-            $users->gender = $input['gender'];
-            $users->password = bcrypt($input['password']);
-            $users->birthday_date = $input['birthday_date'];
-            $users->phone_number = $input['phone_number'];
-            $users->email = $input['email'];
-            $users->avatar = $filename;
-            $users->user_type_id = $input['user_type_id'];
-            $users->save();
-        
-            return Response::json('succès');
+            $input = $request->all();
+            $input['avatar'] = $filename;
+            $input['password'] = bcrypt($input['password']);
+
+            $user = User::findOrFail($userid);
+            $user->update($input);
+            $student = Student::select('*')->where('user_id', $user->id)->where('active', 1)->get()->first();
+            // dd($student);
+
+            $success['token'] =  $user->createToken('Laravel')->accessToken;
+            $success['id'] =  $user->id;
+            $success['lastname'] =  $user->lastname;
+            $success['firstname'] =  $user->firstname;
+            $success['email'] =  $user->email;
+            $success['gender'] =  $user->gender;
+            $success['phone_number'] =  $user->phone_number;
+            $success['birthday_date'] =  $user->birthday_date;
+            $success['gender'] =  $user->gender;
+            $success['user_type_id'] =  $user->user_type_id;
+            $success['student_id'] =  $student['id'];
+            // dd($success);
+            return Response::json($success);
         else:
-            return response::json(['error'=>"Vous n'avez pas les droits"]);        
+            return response::json(["error"=>"vous n'avez pas les droits"]);
         endif;
     }
 

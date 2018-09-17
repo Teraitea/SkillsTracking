@@ -99,14 +99,11 @@ class ReportController extends Controller
       return Response::json($reportByFormationId);
 
      }
+     
     /**
      * Get all the reports of a formation
      * Return Response
      */
-
-    /**
-    * Get one report by reportId
-    */
 
     public function getReportsCreator()
     {
@@ -118,6 +115,10 @@ class ReportController extends Controller
         return response::json($student);
     }
 
+
+    /**
+    * Get one report by reportId
+    */
     public function getOneReport($reportId, $formationId)
     {
       if(Auth::user()->user_type_id == 2):
