@@ -89,24 +89,31 @@ class ProgressionController extends Controller
         if(Auth::user()->user_type_id == 1):
             $students = Student::select('users.lastname', 'users.firstname')
                 ->join('users', 'users.id', 'students.user_id')
-                ->where('students.id', $studentId)->get();
+                ->where('students.user_id', $studentId)->get();
+                // dd($students);
+
+            $user = Student::select('users.lastname', 'users.firstname', 'students.id as student_id')
+            ->join('users', 'users.id', 'students.user_id')
+            ->where('students.user_id', $studentId)->get()->first();
+            // dd($user);
+            
             foreach($students as $key=>$student):
                 $skillsTotal = Progression::select('progressions.skill_id')->where('progressions.student_id', $studentId)->get();
                 $skillsValidatedByStudent = Progression::select('progressions.skill_id', 'skills.name')
                     ->join('skills', 'skills.id', 'progressions.skill_id')
                     ->where('progressions.student_validation', 1)
-                    ->where('progressions.student_id', $studentId)
+                    ->where('progressions.student_id', $user->student_id)
                     ->get();
                 $skillsValidatedByTeachers = Progression::select('progressions.skill_id', 'skills.name')
                     ->join('skills', 'skills.id', 'progressions.skill_id')
                     ->where('progressions.teacher_validation', 1)
-                    ->where('progressions.student_id', $studentId)
+                    ->where('progressions.student_id', $user->student_id)
                     ->get();
                 $skillsValidatedByTeachersAndStudent = Progression::select('progressions.skill_id', 'skills.name')
                 ->join('skills', 'skills.id', 'progressions.skill_id')
                     ->where('progressions.student_validation', 1)
                     ->where('progressions.teacher_validation', 1)
-                ->where('progressions.student_id', $studentId)
+                ->where('progressions.student_id', $user->student_id)
                 ->get();
                 
                 $students[$key]->countOfSkillsTotal = $skillsTotal->count();
