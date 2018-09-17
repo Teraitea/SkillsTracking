@@ -37,8 +37,8 @@ class CalendarController extends Controller
         $calendars = Calendar::select('calendars.id as calendar_id', 'calendars.file_name', 'calendars.file_url', 'calendars.formation_id', 'formations.name')
             ->where('formation_id', $formationId)
             ->join('formations', 'formations.id', 'calendars.formation_id')
-            ->get();
-        return response::json($calendars[0]);
+            ->get()->first();
+        return response::json($calendars);
     }
 
     public function editCalendar($calendarId, Request $request)
