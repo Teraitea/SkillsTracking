@@ -244,9 +244,8 @@ class UserController extends Controller
     public function listUsersStudent()
     {
         if(Auth::user()->user_type_id == 1):
-            $users = User::select('users.*', 'students.id as student_id')
+            $users = User::select('users.*')
             ->where('users.user_type_id', '=', 3)
-            ->join('students', 'students.user_id', 'users.id')
             ->paginate(25);
 
             //On récupère les formations en cours que le formation a
