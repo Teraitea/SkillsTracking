@@ -338,6 +338,7 @@ class ReportController extends Controller
         ->where('students.user_id', $authUserId)
         ->orderBy('students.id', 'desc')
         ->get()->first();
+        dd($formationData);
 
       $reports = Report::select('reports.id as report_id','student_id', 'formations.name','students.formation_id as formation_id','users.firstname as studentFirstname', 'users.lastname as studentLastname','reports.updated_at as last_edit_date', 'reports.created_at as created_date', 'reports.date as report_date','reports.title as report_title', 'reports.rate as report_rate','text', 'is_daily')
         ->join('users', 'users.id', 'reports.student_id')
