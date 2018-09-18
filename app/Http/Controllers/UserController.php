@@ -191,7 +191,9 @@ class UserController extends Controller
         ];
 
         $student = Student::create($studentData);
-
+        Progression::createProgressionForStudentOfFormation($student->id, $student->formation_id);
+        
+        $success['id'] =  $student->id;
         $success['user_id'] =  $student->user_id;
         $success['formation_id'] =  $student->formation_id;
 

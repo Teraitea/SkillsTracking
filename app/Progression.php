@@ -37,4 +37,24 @@ class Progression extends Model
 
         return $newProgressions;
     }
+
+    public static function createProgressionForStudentOfFormation($studentId, $formationId) {
+        $skills = Skill::select('skills.id')
+        ->join('modules', 'modules.id', 'skills.module_id')
+        ->join('formation_details', 'formation_details.module_id', 'modules.id')
+        ->join('formations','formations.id', 'formation_details.formation_id')
+        ->join('students', 'students.formation_id', 'formations.id')
+        ->groupBy('skills.id')
+        ->where('students.formation_id', $formationId)
+        ->get();
+
+        foreach($skills as $skill):
+            $progressionData = [
+                'student_id' => $studentId,
+                'formation_id' => $formationId,
+                'skill_id' => $skill->id
+            ];
+            $progression = Progression::create($progressionData);
+        endforeach;
+    }
 }

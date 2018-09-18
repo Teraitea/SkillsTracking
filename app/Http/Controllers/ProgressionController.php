@@ -324,28 +324,8 @@ class ProgressionController extends Controller
     public function addProgression($studentId, $formationId)
     {
         // dd($formationId);
-        $skills = Skill::select('skills.id')
-        ->join('modules', 'modules.id', 'skills.module_id')
-        ->join('formation_details', 'formation_details.module_id', 'modules.id')
-        ->join('formations','formations.id', 'formation_details.formation_id')
-        ->join('students', 'students.formation_id', 'formations.id')
-        ->groupBy('skills.id')
-        ->where('students.formation_id', $formationId)
-        ->get();
-
-        // dd($skills->count());
-
-        for($i = 1; $i < $skills->count(); $i++):
-
-        $progressionData = [
-            'student_id' => $studentId,
-            'formation_id' => $formationId,
-            'skill_id' => $i
-        ];
-
-        $progression = Progression::create($progressionData);
-
-        endfor;
+       
+        Progression::createProgressionForStudentOfFormation($studentId, $formationId);
 
     }
 
