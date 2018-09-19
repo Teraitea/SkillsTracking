@@ -11,6 +11,6 @@
 # npm-debug.log
 # yarn-error.log
 # .env
-config/database.php
-exclude-list.txt
-public/uploads
+# config/database.php
+# exclude-list.txt
+# public/uploads
