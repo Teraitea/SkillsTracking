@@ -52,7 +52,7 @@ class ProgressionController extends Controller
     {
         $user = Auth::user();
         if($user->user_type_id == 1):
-            $skills = Skill::select('skills.id as skill_id','module_id as module_id', 'modules.name as module_name')
+            $skills = Skill::select('skills.id as id','skills.name as name','module_id as module_id', 'modules.name as module_name')
                 ->join('modules', 'modules.id', 'skills.module_id')
                 ->where('module_id', $moduleId)
                 ->get();
@@ -60,17 +60,17 @@ class ProgressionController extends Controller
             foreach ($skills as $key=>$skill):
                 $skillsValidatedByTeachers = Progression::select('progressions.id')
                     ->join('skills', 'skills.id', 'progressions.skill_id')
-                    ->where('skills.id', $skill->skill_id)
+                    ->where('skills.id', $skill->id)
                     ->where('teacher_validation', 1)
                 ->get();
                 $skillsValidatedByStudents = Progression::select('progressions.id')
                     ->join('skills', 'skills.id', 'progressions.skill_id')
-                    ->where('skills.id', $skill->skill_id)
+                    ->where('skills.id', $skill->id)
                     ->where('student_validation', 1)
                 ->get();
                 $skillsToValidate = Progression::select('progressions.id')
                     ->join('skills', 'skills.id', 'progressions.skill_id')
-                    ->where('skills.id', $skill->skill_id)
+                    ->where('skills.id', $skill->id)
                 ->get();
 
                 $skills[$key]->validated_by_teacher = $skillsValidatedByTeachers->count();
@@ -331,28 +331,8 @@ class ProgressionController extends Controller
     public function addProgression($studentId, $formationId)
     {
         // dd($formationId);
-        $skills = Skill::select('skills.id')
-        ->join('modules', 'modules.id', 'skills.module_id')
-        ->join('formation_details', 'formation_details.module_id', 'modules.id')
-        ->join('formations','formations.id', 'formation_details.formation_id')
-        ->join('students', 'students.formation_id', 'formations.id')
-        ->groupBy('skills.id')
-        ->where('students.formation_id', $formationId)
-        ->get();
-
-        // dd($skills->count());
-
-        for($i = 1; $i < $skills->count(); $i++):
-
-        $progressionData = [
-            'student_id' => $studentId,
-            'formation_id' => $formationId,
-            'skill_id' => $i
-        ];
-
-        $progression = Progression::create($progressionData);
-
-        endfor;
+       
+        Progression::createProgressionForStudentOfFormation($studentId, $formationId);
 
     }
 
