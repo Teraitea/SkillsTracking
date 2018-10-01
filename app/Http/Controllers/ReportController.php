@@ -121,7 +121,7 @@ class ReportController extends Controller
     */
     public function getOneReport($reportId, $formationId)
     {
-      if(Auth::user()->user_type_id == 2):
+      if((Auth::user()->user_type_id == 2) || (Auth::user()->user_type_id == 1)):
         $reportByFormationId = Report::
         select('reports.id as report_id',
               'reports.student_id as student_id',

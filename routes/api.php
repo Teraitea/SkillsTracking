@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 |
 */
 
+Route::post('forgot/password', 'UserController@forgotPassword');
 
 /**
  * Connexion d'un utilisateur

@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\User as UserR;
 use App\User;
+
+use Illuminate\Support\Facades\Mail;
+use App\Mail\SendMailable;
 use App\Module;
 use App\Admin;
 use App\Formation;
@@ -292,6 +295,15 @@ class UserController extends Controller
         endif;
     }
 
+    public function forgotPassword(request $request)
+    {
+        $input = $request->all();
+        $email = $input['email'];
+        // dd($email);
+
+        
+        return 'Email was sent';
+    }
     public function getTotalMales()
     {
         $users = User::select('id')->where('gender', 'LIKE', 'Homme')->get()->count();
